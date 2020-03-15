@@ -1,14 +1,15 @@
 # TCP Connection
 
 ## Description
-A client-server TCP connection, handling multiple client using goroutines and channels.
+A client-server TCP connection, handling multiple clients using goroutines and channels.
 
 ## Usage
 - Clone this repository
-  - `git clone repository` 
+  - ```git clone https://github.com/mbampi/ConcurrentTCPServer.git``` 
+  - `cd ConcurrentTCPServer`
   
 - Run the Server
   - `go run Server/main.go` 
   
-- Run Multiple Clients
+- Run Client (possible to run multiple clients)
   - `go run Client/main.go` 
