@@ -39,7 +39,9 @@ func main() {
 	}
 }
 
-func handleConnection(conn net.Conn, messageChan chan string) {
+// Handles all connections. Each client connection creates an instance of this goroutine
+// (ex. if there are 7 clients, 7 handleConnection goroutines will exist)
+func handleConnection(conn net.Conn, messageChan chan<- string) {
 	for {
 		// read connection message
 		msg, err := bufio.NewReader(conn).ReadString('\n')
@@ -62,7 +64,8 @@ func handleConnection(conn net.Conn, messageChan chan string) {
 	conn.Close()
 }
 
-func handleMessages(messageChan chan string) {
+// Handle Message Channel, receiving messages from all clients
+func handleMessages(messageChan <-chan string) {
 	for {
 		msg, ok := <-messageChan
 		log.Println("handleMessage: received message from messageChan: "+msg+" (chan:", ok, ")")
