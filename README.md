@@ -1,6 +1,27 @@
-# TCP Connection
+# Chat
 
 ## Description
+
+Chat connecting users identified by username.
+
+```
+// duda
+To: mbampi
+Message: Bom dia!
+
+mbampi: Buenoss
+mbampi: Dormiu bem?
+```
+```
+// mbampi
+duda: Buenoss
+
+To: duda
+Message: Buenoss
+To: duda
+Message: Dormiu bem?
+```
+
 A client-server TCP connection, handling multiple clients using goroutines and channels.
 
 ## Usage
@@ -11,5 +32,5 @@ A client-server TCP connection, handling multiple clients using goroutines and c
 - Run the Server
   - `go run Server/main.go` 
   
-- Run Client (possible to run multiple clients)
+- Run Client (possible to run multiple clients, each client an user)
   - `go run Client/main.go` 
