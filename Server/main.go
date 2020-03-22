@@ -1,30 +1,35 @@
 package main
 
 import (
-	"bufio"
+	"encoding/gob"
 	"fmt"
 	"log"
 	"net"
-	"strings"
 )
 
 const (
 	connType = "tcp"
-	connAddr = "127.0.0.1"
-	connPort = "8081"
+	connAddr = "127.0.0.1:8081"
 )
+
+// msgPacket
+type msgPacket struct {
+	Address string
+	User    string
+	Message string
+}
 
 func main() {
 	fmt.Println("main: Initializing TCP Server...")
-	ln, err := net.Listen(connType, connAddr+":"+connPort)
+	ln, err := net.Listen(connType, connAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer ln.Close()
-	log.Println("main: Listening to " + connAddr + " : " + connPort)
+	log.Println("main: Listening to " + connAddr)
 
 	// create channel to receive messages from clients
-	messageChan := make(chan string)
+	messageChan := make(chan msgPacket)
 	go handleMessages(messageChan)
 
 	// accepting new connections
@@ -36,38 +41,27 @@ func main() {
 
 		log.Println("main: ", conn.RemoteAddr(), " Connected")
 		go handleConnection(conn, messageChan)
+		defer conn.Close()
 	}
 }
 
 // Handles all connections. Each client connection creates an instance of this goroutine
 // (ex. if there are 7 clients, 7 handleConnection goroutines will exist)
-func handleConnection(conn net.Conn, messageChan chan<- string) {
+func handleConnection(conn net.Conn, messageChan chan<- msgPacket) {
 	for {
-		// read connection message
-		msg, err := bufio.NewReader(conn).ReadString('\n')
+		err := gob.NewDecoder(conn).Decode(msg)
 		if err != nil {
-			log.Fatal(err)
-		}
-		msg = strings.TrimSpace(msg)
-
-		// check if client requested disconnection
-		temp := strings.ToUpper(msg)
-		if temp == "STOP" {
-			log.Println("handleConnection: ", conn.RemoteAddr(), " requested disconnection")
+			log.Println("Nil")
 			break
 		}
-
-		// answer connection message and sendo to messages channel
-		conn.Write([]byte("Mensagem recebida \n"))
-		messageChan <- string(conn.RemoteAddr().String()) + ": " + msg
+		messageChan <- *msg
 	}
-	conn.Close()
 }
 
 // Handle Message Channel, receiving messages from all clients
-func handleMessages(messageChan <-chan string) {
+func handleMessages(messageChan <-chan msgPacket) {
 	for {
-		msg, ok := <-messageChan
-		log.Println("handleMessage: received message from messageChan: "+msg+" (chan:", ok, ")")
+		msg := <-messageChan
+		log.Println("handleMessages: received", msg)
 	}
 }
